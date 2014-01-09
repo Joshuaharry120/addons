@@ -1,0 +1,11 @@
+"AddonInfo"
+{
+	"name"				"ULX Screen Grabber"
+	"version"			"1.0"
+	"up_date"			"00/00/00"
+	"author_name"		"Boxama"
+	"author_email"		"wpkp34@gmail.com"
+	"author_url"		"http://github.com/boxama"
+	"info"				"Adds a ULX command to allow users to grab a screenshot of what the target is viewing on their screen."
+	"override"			"0"
+}
