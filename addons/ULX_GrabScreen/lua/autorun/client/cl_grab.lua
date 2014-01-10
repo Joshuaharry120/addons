@@ -1,14 +1,9 @@
--- The default quality of the screenshot, used if the user does not specify the quality
--- The higher the better, but also the longer it will take to send
--- You are not allowed to use values greater than 50
-local grab_Quality = 40 -- (0.1-50)
-
 net.Receive( "grab_SendScreenshot", function()
 
-	local img = net.ReadString()
+	local img, ply = net.ReadData( 65500 ), net.ReadEntity()
 
 	local frame = vgui.Create( "DFrame" )
-	frame:SetTitle( "Screenshot from ".. ( net.ReadEntity():Nick() or "<disconnected>" ) )
+	frame:SetTitle( "Screenshot from ".. ( ply:IsValid() and ply:Nick() or "<disconnected>" ) )
 	frame:SetSize( ScrW(), ScrH() )
 	frame:SetDraggable( false )
 	frame:Center()
@@ -26,8 +21,23 @@ net.Receive( "grab_SendScreenshot", function()
 				height: 100%;
 			}
 		</style>
-		<img src="data:image/jpg;base64,]] .. img .. [[">]])
+		<img src="data:image/jpg;base64,]] .. util.Base64Encode( img ) .. [[">]])
 	panel:Dock( FILL )
+	panel:SetMouseInputEnabled( false )
+
+	save = frame:Add( "DButton" )
+	save:SetImage( "icon16/drive_add.png" )
+	save:SetText( "   Save Image" )
+	save:SetSize( 100, 25 )
+	save:SetPos( ( frame:GetWide()/2 ) -( save:GetWide()/2 ), frame:GetTall() -35  )
+	save.Paint = function( p, w, h )
+		draw.RoundedBox( 8, 0, 0, w, h, Color( 0, 0, 0, 150 ) )
+	end
+	save.DoClick = function()
+		file.Write( "Screengrab.txt", img )
+		save:Remove()
+		LocalPlayer():ChatPrint( "A file named 'Screenshot.txt' has been created in the GarrysMod/garrysmod/data folder. If you rename it to 'Screenshot.jpg' you can open it as an image." )
+	end
 
 	frame:MakePopup()
 
@@ -41,7 +51,7 @@ net.Receive( "grab_RequestScreenshot", function()
 	scr.format = "jpeg"
 	scr.h = ScrH()
 	scr.w = ScrW()
-	scr.quality = quality or math.Clamp( grab_Quality, 0.1, 50 )
+	scr.quality = 30
 	scr.x = 0
 	scr.y = 0
 
@@ -49,7 +59,7 @@ net.Receive( "grab_RequestScreenshot", function()
 
 	net.Start( "grab_Screenshot" )
 		net.WriteEntity( sendto )
-		net.WriteString( util.Base64Encode( img ) )
+		net.WriteData( img, 65500 )
 	net.SendToServer()
 
 end )
