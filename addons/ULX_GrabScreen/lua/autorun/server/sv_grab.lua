@@ -25,7 +25,7 @@ net.Receive( "grab_Screenshot", function( len, ply )
 
 	net.Start( "grab_SendScreenshot" )
 		net.WriteData( img, 65500 )
-		net.WriteEntity( ply )
+		net.WriteString( ply:IsValid() and ( string.len(ply:Nick()) > 25 and string.sub( ply:Nick(), 1, 25 ).."..." or ply:Nick() ) or "<disconnected>"  )
 	net.Send( sendto )
 
 end )
