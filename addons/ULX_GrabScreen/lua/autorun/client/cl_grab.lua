@@ -1,9 +1,9 @@
 net.Receive( "grab_SendScreenshot", function()
 
-	local img, ply = net.ReadData( 65500 ), net.ReadEntity()
+	local img, ply = net.ReadData( 65500 ), net.ReadString()
 
 	local frame = vgui.Create( "DFrame" )
-	frame:SetTitle( "Screenshot from ".. ( ply:IsValid() and ply:Nick() or "<disconnected>" ) )
+	frame:SetTitle( "Screenshot from "..ply )
 	frame:SetSize( ScrW(), ScrH() )
 	frame:SetDraggable( false )
 	frame:Center()
