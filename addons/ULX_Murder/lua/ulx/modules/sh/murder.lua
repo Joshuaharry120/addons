@@ -1,4 +1,3 @@
-if GetConVarString( "gamemode" ) ~= "murder" then return end
 CATEGORY_NAME = "Murder"
 
 //////////////////////////////////////////////////////////
@@ -41,7 +40,7 @@ function ulx.slaynr( caller, targets, rounds, shouldslay )
 			v.MurdererChance = 1
 			str = "#A removed all autoslays against #T"
 		end
-		
+
 	end
 
 	ulx.fancyLogAdmin( caller, false, str, targets )
@@ -55,71 +54,77 @@ slaynr:defaultAccess( ULib.ACCESS_ADMIN )
 slaynr:help( "Slays the target at the beggining of the next round." )
 slaynr:setOpposite( "ulx unslaynr", { _, _, _, true }, "!unslaynr" )
 
-hook.Add( "OnStartRound", "Autoslays", function()
+if SERVER then
 
-	timer.Simple( 3, function()
-		
-		for k, v in pairs( player.GetAll() ) do
+	hook.Add( "OnStartRound", "Autoslays", function()
+
+		timer.Simple( 3, function()
 			
-			if v:GetObserverTarget() then continue end
-
-			slays, reconnect = tonumber( v:GetPData( "NRSLAY_SLAYS" ) ) or 0, v:GetPData( "NRSLAY_LEAVE" ) or false
-
-			if slays > 0 then
-				slays = slays-1
-
-				if slays == 0 then
-					v:RemovePData( "NRSLAY_SLAYS" )
-					v.MurdererChance = 1
-				else
-					v:SetPData( "NRSLAY_SLAYS", slays )
-					v.MurdererChance = 0
-				end
+			for k, v in pairs( player.GetAll() ) do
 				
-				ulx.fancyLogAdmin( nil, false, "Autoslayed #T", v )
-				v:Kill()
-				if reconnect then
-					ULib.tsay( v, "You have been autoslain after leaving with active autoslays", true )
-					v:RemovePData( "NRSLAY_LEAVE")
+				if v:GetObserverTarget() then continue end
+
+				slays, reconnect = tonumber( v:GetPData( "NRSLAY_SLAYS" ) ) or 0, v:GetPData( "NRSLAY_LEAVE" ) or false
+
+				if slays > 0 then
+					slays = slays-1
+
+					if slays == 0 then
+						v:RemovePData( "NRSLAY_SLAYS" )
+						v.MurdererChance = 1
+					else
+						v:SetPData( "NRSLAY_SLAYS", slays )
+						v.MurdererChance = 0
+					end
+					
+					ulx.fancyLogAdmin( nil, false, "Autoslayed #T", v )
+					v:Kill()
+					if reconnect then
+						ULib.tsay( v, "You have been autoslain after leaving with active autoslays", true )
+						v:RemovePData( "NRSLAY_LEAVE")
+					end
+
 				end
 
 			end
 
+		end )
+
+	end )
+
+	hook.Add( "PlayerInitialSpawn", "PreventReconnectingMurderer", function( ply )
+
+		slays = tonumber( ply:GetPData( "NRSLAY_SLAYS" ) ) or 0
+		if slays > 0 then
+			ply.MurdererChance = 0
 		end
 
 	end )
 
-end )
+	hook.Add( "PlayerDisconnected", "BanThemSlayEvaders", function( ply )
 
-hook.Add( "PlayerInitialSpawn", "PreventReconnectingMurderer", function( ply )
+		if slaynr_ban then
 
-	slays = tonumber( ply:GetPData( "NRSLAY_SLAYS" ) ) or 0
-	if slays > 0 then
-		ply.MurdererChance = 0
-	end
+			slays = tonumber( ply:GetPData( "NRSLAY_SLAYS" ) ) or 0
 
-end )
+			if slays > 0 then
+				local reason, mins = "Attempting to evade "..slays.." autoslays.", ( slaynr_culumativeban and slays*slaynr_banmins or slaynr_banmins )
+				ULib.kickban( ply, mins, reason )
+				ulx.fancyLogAdmin( "The Server", "#A automatically banned #T for #i minutes (#s)", ply, mins, reason )
+				if !slaynr_keepslays then
+					ply:RemovePData( "NRSLAY_SLAYS" )
+				else
+					ply:SetPData( "NRSLAY_LEAVE", true )
+				end
 
-hook.Add( "PlayerDisconnected", "BanThemSlayEvaders", function( ply )
-
-	if slaynr_ban then
-
-		slays = ply:GetPData( "NRSLAY_SLAYS" ) or 0
-
-		if slays > 0 then
-			RunConsoleCommand( "ulx", "banid", ply:SteamID(), tostring(slaynr_culumativeban and slaynr_banmins*slays or slaynr_banmins), "Evading "..slays.." autoslays" )
-			if !slaynr_keepslays then
-				ply:RemovePData( "NRSLAY_SLAYS" )
-			else
-				ply:SetPData( "NRSLAY_LEAVE", true )
 			end
+
 		end
 
-	end
 
+	end )
 
-end )
-
+end
 
 function ulx.givemagnum( caller, targets )
 
