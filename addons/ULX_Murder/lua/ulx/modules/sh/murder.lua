@@ -1,4 +1,4 @@
---[[			CONFIG 			]]--
+--[[			CONFIG 				]]--
 CATEGORY_NAME = "Murder"
 // The name that the commands will be placed under
 local slaynr_ban = true
@@ -86,7 +86,7 @@ function ulx.respawn( caller, targets )
 	ulx.fancyLogAdmin( caller, false, "#A respawned #T", targets )
 
 end
-respawn = ulx.command( CATEGORY_NAME, "ulx respawn", ulx.respawn, "!respawn" )
+local respawn = ulx.command( CATEGORY_NAME, "ulx respawn", ulx.respawn, "!respawn" )
 respawn:addParam{ type=ULib.cmds.PlayersArg }
 respawn:defaultAccess( ULib.ACCESS_ADMIN )
 respawn:help( "Respawn the target." )
@@ -119,13 +119,24 @@ function ulx.mapnr( caller, map, unset )
 	ulx.fancyLogAdmin( caller, false, str, mapnr_map )
 
 end
-mapnr = ulx.command( CATEGORY_NAME, "ulx mapnr", ulx.mapnr, "!mapnr" )
+local mapnr = ulx.command( CATEGORY_NAME, "ulx mapnr", ulx.mapnr, "!mapnr" )
 mapnr:addParam{ type=ULib.cmds.StringArg, completes=ulx.maps, hint="map", ULib.cmds.optional }
 mapnr:addParam{ type=ULib.cmds.BoolArg, invisible=true }
 mapnr:defaultAccess( ULib.ACCESS_ADMIN )
 mapnr:help( "Changes the map at the beggining of the next round." )
 mapnr:setOpposite( "ulx unmapnr", { _, _, true }, "!unmapnr" )
 
+function ulx.forcemurderer( caller, targets )
+
+	if #targets > 1 then ULib.tsayError( caller, "Multiple targets specified!" ) return end
+	GAMEMODE.ForceNextMurderer = target
+	ulx.fancyLogAdmin( caller, true, "#A set #T to be the Murderer next round!", target )
+
+end
+local forcemu = ulx.command( CATEGORY_NAME, "ulx forcemurderer", ulx.forcemurderer, "!forcemurderer" )
+forcemu:addParam{ type=ULib.cmds.PlayersArg }
+forcemu:defaultAccess( ULib.ACCESS_ADMIN )
+forcemu:help( "Force the target to be the murderer next round." )
 
 /////			Hooks 			/////
 
