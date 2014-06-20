@@ -156,7 +156,7 @@ if CLIENT then
 		scr.format = "jpeg"
 		scr.h = ScrH()
 		scr.w = ScrW()
-		scr.quality = 50
+		scr.quality = 40
 		scr.x = 0
 		scr.y = 0
 
