@@ -4,7 +4,7 @@
 	"version"			"1.0"
 	"up_date"			"00/00/00"
 	"author_name"		"Boxama"
-	"author_email"		"wpkp34@gmail.com"
+	"author_email"		""
 	"author_url"		"http://github.com/boxama"
 	"info"				"Adds several ULX commands that can be used in the Murder gamemode"
 	"override"			"0"
